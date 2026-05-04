@@ -7,7 +7,7 @@ Python port of the [Temporal Modulation Spectrum Toolbox
 > for the computation of amplitude- and f0- modulation spectra and
 > spectrograms."
 
-This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 
+This work is licensed under a Creative Commons Attribution-NonCommercial 4.0
 International License (CC BY-NC 4.0).
 You should have received a copy of the license along with this
 work. If not, see <https://creativecommons.org/licenses/by-nc/4.0/>.
@@ -36,18 +36,18 @@ def AMa_spectrum(sig, fs, mfmin=0.5, mfmax=200, modbank_Nmod=200, fmin=70, fmax=
         raise ValueError("Invalid input types.")
     if fs <= 0:
         raise ValueError("fs must be a positive scalar.")
-    
+
     t = np.arange(1,len(sig)+1) / fs
     gamma_responses, fc = auditory_filterbank(sig, fs, fmin, fmax)
     E = np.abs(hilbert(gamma_responses, axis=1))
-    
+
     f_spectra, f_spectra_intervals = define_modulation_axis(mfmin, mfmax, modbank_Nmod)
     Nchan = fc.shape[0]
     AMspec = np.zeros((f_spectra.shape[0], Nchan))
     for ichan in range(Nchan):
         Pxx = periodogram(E[ichan, :], fs, f_spectra)
         AMspec[:, ichan] = 2 * Pxx
-   
+
     step = AMa_spec_params(t, aud_filt_bw(fc), gamma_responses, E, f_spectra, f_spectra_intervals)
     return AMspec, fc, f_spectra, step
 
@@ -57,7 +57,7 @@ def AMi_spectrum(sig, fs, mfmin=0.5, mfmax=200., modbank_Nmod=200, modbank_Qfact
         raise ValueError("Invalid input types.")
     if fs <= 0:
         raise ValueError("fs must be a positive scalar.")
-    
+
     t = np.arange(1,len(sig)+1) / fs
     gamma_responses, fc = auditory_filterbank(sig, fs, fmin, fmax)
     E = np.abs(hilbert(gamma_responses, axis=1))
@@ -80,8 +80,7 @@ def f0M_spectrum(sig, fs, mfmin=.5, mfmax=200., modbank_Nmod=200, undersample=20
     f0 = remove_artifacts(f0, fs/undersample, max_jump, min_duration, (fmin, fmax), (.4, 2.5), 1500)
     f0_wo_nan = f0[~np.isnan(f0)]
 
-    t = np.arange(1, len(sig) + 1) / fs
-    t_wo_nan = t[::undersample]
+    t_wo_nan = (np.arange(0, len(f0))*20 + 1)/fs
     t_wo_nan = t_wo_nan[:len(f0)]
     t_wo_nan = t_wo_nan[~np.isnan(f0)]
 
@@ -95,4 +94,3 @@ def f0M_spectrum(sig, fs, mfmin=.5, mfmax=200., modbank_Nmod=200, undersample=20
     step = f0M_spec_params(t_f0, f0, f_spectra, f_spectra_intervals)
 
     return f0M_spectrum, f_spectra, step
-
